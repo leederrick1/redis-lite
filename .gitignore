@@ -1,0 +1,13 @@
+# Visual Studio local settings
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+
+# Build output
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+out/

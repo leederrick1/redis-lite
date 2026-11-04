@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="Store.h" />
+  </Folder>
+  <Project Path="RedisLite.vcxproj" Id="43b9a1fd-5e43-4ae8-a8c3-e10935783c36" />
+</Solution>
