@@ -21,6 +21,17 @@ void printValue(const Store& store, const std::string& key)
 	{
 		std::cout << key << ": " << *number << '\n';
 	}
+	else if (const auto* list = std::get_if <std::vector<std::string>>(&value))
+	{
+		std::cout << key << ": [";
+		
+		for (const std::string& item : *list)
+		{
+			std::cout << item << ' ';
+		}
+
+		std::cout << "]\n";
+	}
 
 }
 void runExample()
@@ -108,7 +119,7 @@ int main()
 		}
 		else if (command == "HELP")
 		{
-			std::cout << "Commands: SIZE, HELP, GET <key>, SET <key> <value>, DEL <key>, EXIT\n";
+			std::cout << "Commands: SIZE, HELP, GET <key>, SET <key> <value>, SETINT <key> <value>, SETLIST <key> <item1> ..., DEL <key>, EXIT\n";
 		}
 		else if (command == "SETINT")
 		{
@@ -135,6 +146,30 @@ int main()
 				printValue(store, key);
 			}
 
+		}
+		else if (command == "SETLIST")
+		{
+			std::string key;
+			if (!(stream >> key))
+			{
+				std::cout << "Error: usage SETLIST <key> <item1> ..\n";
+				continue;
+			}
+			std::vector<std::string> list;
+			std::string item;
+			while (stream >> item)
+			{
+				list.push_back(item);
+			}
+			if (list.empty())
+			{
+				std::cout << "ERROR: usage SETLIST <key> <item1> ...\n";
+			}
+			else
+			{
+				store.set(key, list);
+				std::cout << "Success" << std::endl;
+			}
 		}
 		else if (command == "SET")
 		{
