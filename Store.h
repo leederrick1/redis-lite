@@ -5,6 +5,11 @@
 //provides basic types like size_t
 #include <cstddef>
 #include <string>
+#include <variant>
+#include <cstdint>
+
+using Value = std::variant<std::string, std::int64_t>;
+
 class Store
 {
 	public:
@@ -12,12 +17,12 @@ class Store
 		Store() = default;
 
 		//trailing const will not let the method make changes to the members of the object
-		std::optional<std::string> get(const std::string& key) const;
-		void set(const std::string& key, const std::string& value);
+		std::optional<Value> get(const std::string& key) const;
+		void set(const std::string& key, const Value& value);
 		std::size_t size() const;
 		bool erase(const std::string& key);
 	private:
 		//private member variables should include _ at end of name
-		std::unordered_map<std::string, std::string> entries_;
+		std::unordered_map<std::string, Value> entries_;
 
 };
