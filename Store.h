@@ -7,8 +7,9 @@
 #include <string>
 #include <variant>
 #include <cstdint>
+#include <vector>
 
-using Value = std::variant<std::string, std::int64_t>;
+using Value = std::variant<std::string, std::int64_t, std::vector<std::string>>;
 
 class Store
 {
