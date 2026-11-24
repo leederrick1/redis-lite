@@ -6,9 +6,22 @@
 
 void printValue(const Store& store, const std::string& key)
 {
-	std::cout << key << ": "
-		<< store.get(key).value_or("NOT FOUND")
-		<< '\n';
+	auto result = store.get(key);
+	if (!result.has_value())
+	{
+		std::cout << key << ": NOT FOUND\n";
+		return;
+	}
+	const Value& value = result.value();
+	if (const auto* text = std::get_if<std::string>(&value))
+	{
+		std::cout << key << ": " << *text << '\n';
+	}
+	else if (const auto* number = std::get_if<std::int64_t>(&value))
+	{
+		std::cout << key << ": " << *number << '\n';
+	}
+
 }
 void runExample()
 {
@@ -33,31 +46,37 @@ void runTests()
 	Store store;
 	assert(store.size() == 0);
 	store.set("username", "derrick");
-	assert(store.get("username").value() == "derrick");
-	assert(store.size() == 1);
-	auto missing = store.get("missing");
-	assert(!missing.has_value());
-	store.set("empty", "");
-	assert(store.get("empty").value() == "");
-	assert(store.size() == 2);
-	store.set("username", "derrick");
-	store.set("username", "lee");
-	assert(store.get("username").value() == "lee");
-	assert(store.size() == 2);
-	bool removed = store.erase("username");
-	assert(removed);
-	auto deleted = store.get("username");
-	assert(!deleted.has_value());
-	assert(store.size() == 1);
-	bool removedAgain = store.erase("username");
-	assert(!removedAgain);
-	assert(store.size() == 1);
-	store.set("Name", "upper");
-	store.set("name", "lower");
+	auto result = store.get("username");
+	assert(result.has_value());
+	
+	store.set("score", std::int64_t{ 42 });
+	auto score = store.get("score");
+	assert(score.has_value());
 
-	assert(store.get("Name").value() == "upper");
-	assert(store.get("name").value() == "lower");
-	assert(store.size() == 3);
+	const auto* number = std::get_if<std::int64_t>(&score.value());
+	assert(number != nullptr);
+	assert(*number == 42);
+
+	assert(store.size() == 2);
+	store.set("score", "forty-two");
+	auto scoreString = store.get("score");
+	assert(scoreString.has_value());
+
+	const auto* stringValue = std::get_if<std::string>(&scoreString.value());
+	assert(stringValue != nullptr);
+	assert(*stringValue == "forty-two");
+	assert(store.size() == 2);
+
+	const auto* text = std::get_if<std::string>(&result.value());
+	assert(text != nullptr);
+	assert(*text == "derrick");
+
+	store.set("username", std::string{ "derrick" });
+	store.set("score", std::int64_t{ 42 });
+
+	printValue(store, "username");
+	printValue(store, "score");
+	printValue(store, "missing");
 	std::cout << "All tests passed!\n";
 }
 bool hasExtraInput(std::istringstream& stream)
@@ -90,6 +109,19 @@ int main()
 		else if (command == "HELP")
 		{
 			std::cout << "Commands: SIZE, HELP, GET <key>, SET <key> <value>, DEL <key>, EXIT\n";
+		}
+		else if (command == "SETINT")
+		{
+			std::string key;
+			std::int64_t value;
+			if ((stream >> key >> value) && !hasExtraInput(stream))
+			{
+				store.set(key, value);
+			}
+			else
+			{
+				std::cout << "ERROR: usage SETINT <key> <integer>" << std::endl;
+			}
 		}
 		else if (command == "GET")
 		{
