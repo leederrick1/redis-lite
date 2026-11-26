@@ -119,7 +119,7 @@ int main()
 		}
 		else if (command == "HELP")
 		{
-			std::cout << "Commands: SIZE, HELP, GET <key>, SET <key> <value>, SETINT <key> <value>, SETLIST <key> <item1> ..., DEL <key>, EXIT\n";
+			std::cout << "Commands: SIZE, HELP, EXPIRE <key> <seconds>, GET <key>, SET <key> <value>, SETINT <key> <value>, SETLIST <key> <item1> ..., DEL <key>, EXIT\n";
 		}
 		else if (command == "SETINT")
 		{
@@ -205,6 +205,39 @@ int main()
 			else
 			{
 				std::cout << "ERROR: usage DEL <key>" << std::endl;
+			}
+		}
+		else if (command == "EXPIRE")
+		{
+			std::string key;
+			std::int64_t seconds;
+
+			if (!(stream >> key >> seconds) || hasExtraInput(stream))
+			{
+				std::cout << "ERROR: usage EXPIRE <key> <seconds>\n";
+			}
+			else if (seconds > 31536000)
+			{
+				std::cout << "ERROR: maximum expiration is 31536000 seconds\n";
+			}
+			else
+			{
+				if (seconds < 0)
+				{
+					seconds = 0;
+				}
+
+				bool expired = store.expire(
+					key, std::chrono::seconds{ seconds });
+
+				if (expired)
+				{
+					std::cout << "OK\n";
+				}
+				else
+				{
+					std::cout << "NOT FOUND\n";
+				}
 			}
 		}
 		else
